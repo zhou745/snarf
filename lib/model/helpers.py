@@ -25,6 +25,7 @@ def masked_softmax(vec, mask, dim=-1, mode='softmax', soft_blend=1):
     return output
 
 
+
 ''' Hierarchical softmax following the kinematic tree of the human body. Imporves convergence speed'''
 def hierarchical_softmax(x):
     def softmax(x):

@@ -1,9 +1,9 @@
 datamodule:
   _target_: lib.dataset.cape.CAPEDataModule
   dataset_path: ./data/CAPE
-  num_workers: 10
+  num_workers: 0
   subject: ${subject}
-  clothing: 'longshort'
+  clothing: 'blazerlong'
   batch_size: 8
   processor:
     _target_: lib.dataset.cape.CAPEDataProcessor

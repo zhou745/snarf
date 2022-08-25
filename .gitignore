@@ -149,3 +149,9 @@ wandb
 multirun
 lib/smpl/smpl_model
 **.pkl
+
+.idea/
+DFaust.tar.bz2
+SMPL_python_v.1.0.0.zip
+PosePrior.tar.bz2
+smpl/

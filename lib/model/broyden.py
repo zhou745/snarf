@@ -1,7 +1,7 @@
 import torch
 
 
-def broyden(g, x_init, J_inv_init, max_steps=50, cvg_thresh=1e-5, dvg_thresh=1, eps=1e-6):
+def broyden(g, x_init, J_inv_init, max_steps=50, cvg_thresh=1e-4, dvg_thresh=1, eps=1e-6):
     """Find roots of the given function g(x) = 0.
     This function is impleneted based on https://github.com/locuslab/deq.
 

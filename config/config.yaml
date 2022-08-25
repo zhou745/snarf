@@ -1,12 +1,13 @@
 defaults:
-  - datamodule: dfaust
+#  - datamodule: dfaust
+  - datamodule: cape
 
 hydra:
   run:
     dir: outputs/${expname}/${subject}
 
-expname: dfaust
-subject: 50002
+expname: cape_5e-4_2
+subject: 3375
 epoch: last
 resume: false
 
@@ -20,7 +21,7 @@ model:
   # shape MLP
   network:
     d_in: 3
-    d_out: 1
+    d_out: 4
     depth: 8
     width: 256
     multires: 0
@@ -46,7 +47,7 @@ model:
       geometric_init: false
       bias: 1
   optim:
-    lr: 1e-3
+    lr: 5e-4
   soft_blend: 5
   nepochs_pretrain: 1
   lambda_bone_occ: 1

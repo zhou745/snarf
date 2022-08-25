@@ -6,7 +6,7 @@ import yaml
 import os
 import numpy as np
 # import logging
-from lib.snarf_model import SNARFModel
+from lib.vert_model import Vert_model
 
 @hydra.main(config_path="config", config_name="config")
 def main(opt):
@@ -36,22 +36,22 @@ def main(opt):
     # checkpoint
     checkpoint_path = './checkpoints/last.ckpt'
     if not os.path.exists(checkpoint_path) or not opt.resume:
-        checkpoint_path = None 
+        checkpoint_path = None
 
     checkpoint_callback = pl.callbacks.ModelCheckpoint(save_top_k=-1,
-                                                        monitor=None, 
+                                                        monitor=None,
                                                         dirpath='./checkpoints',
                                                         save_last=True,
                                                         every_n_val_epochs=1)
 
 
-    trainer = pl.Trainer(logger=logger, 
+    trainer = pl.Trainer(logger=logger,
                         callbacks=[checkpoint_callback],
                         accelerator=None,
                         resume_from_checkpoint=checkpoint_path,
                         **opt.trainer)
 
-    model = SNARFModel(opt=opt.model, 
+    model = Vert_model(opt=opt.model,
                     meta_info=datamodule.meta_info,
                     data_processor=data_processor)
 

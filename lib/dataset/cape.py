@@ -43,17 +43,40 @@ class CAPEDataSet(Dataset):
                 index = np.random.randint(self.__len__())
                 print('corrupted npz')
 
+        #load the second sample
+        index_2nd = np.random.randint(self.__len__())
+        # index_2nd = index+1
+        while True:
+            try:
+                regstr_2nd = np.load(self.regstr_list[index_2nd])
+                poses_2nd = regstr_2nd['pose']
+                break
+            except:
+                index_2nd = np.random.randint(self.__len__())
+                print('corrupted npz')
+
         verts = regstr['v_posed'] - regstr['transl'][None,:]
         verts = torch.tensor(verts).float()
+
+        verts_2nd = regstr_2nd['v_posed'] - regstr_2nd['transl'][None,:]
+        verts_2nd = torch.tensor(verts_2nd).float()
 
         smpl_params = torch.zeros([86]).float()
         smpl_params[0] = 1
         smpl_params[4:76] = torch.tensor(poses).float()
 
+        smpl_params_2nd = torch.zeros([86]).float()
+        smpl_params_2nd[0] = 1
+        smpl_params_2nd[4:76] = torch.tensor(poses_2nd).float()
+
         data['scan_verts'] = verts
+        data['scan_verts_2nd'] = verts_2nd
         data['smpl_params'] = smpl_params
         data['smpl_thetas'] = smpl_params[4:76]
         data['smpl_betas'] = smpl_params[76:]
+        data['smpl_params_2nd'] = smpl_params_2nd
+        data['smpl_thetas_2nd'] = smpl_params_2nd[4:76]
+        data['smpl_betas_2nd'] = smpl_params_2nd[76:]
 
         return data
 
@@ -77,13 +100,20 @@ class CAPEDataProcessor():
     def process(self, data):
 
         smpl_output = self.smpl_server(data['smpl_params'], absolute=True)
+        smpl_output_2nd = self.smpl_server(data['smpl_params_2nd'], absolute=True)
+        smpl_output_2nd_ = {key+"_2nd": smpl_output_2nd[key] for key in smpl_output_2nd.keys()}
+
         data.update(smpl_output)
+        data.update(smpl_output_2nd_)
 
         num_batch, num_verts, num_dim = smpl_output['smpl_verts'].shape
 
         random_idx = torch.randint(0, num_verts, [num_batch, self.opt.points_per_frame,1], device=smpl_output['smpl_verts'].device)
         
         random_pts = torch.gather(data['scan_verts'], 1, random_idx.expand(-1, -1, num_dim))
+        random_pts_2nd = torch.gather(data['scan_verts_2nd'], 1, random_idx.expand(-1, -1, num_dim))
+        data['pst_verts'] = random_pts
+        data['pst_verts_2nd'] = random_pts_2nd
         data['pts_d']  = self.sampler.get_points(random_pts)
 
         data['occ_gt'] = kaolin.ops.mesh.check_sign(data['scan_verts'], self.smpl_faces[0], data['pts_d']).float().unsqueeze(-1)
